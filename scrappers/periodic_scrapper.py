@@ -3,6 +3,8 @@ import sys
 
 from playwright.sync_api import sync_playwright, Error
 
+from lambda_function.lambda_function import upload_file_to_s3
+from s3_uploader import BUCKET_NAME
 from scrappers.pom.api_calls import ApiConnector
 from utils.utils import parse_polish_datetime, add_timestamp
 
@@ -71,13 +73,15 @@ def get_data_from_group_board(group_name: str):
                 filepath = ApiConnector(context.request).download_image(img_url,
                                                                         f'../test_data/periodic_update/pictures/{filename}')
                 filepath = str(filepath.absolute())
-            except (Error, AttributeError):
+                s3_file_path = upload_file_to_s3(BUCKET_NAME, filepath)
+            except (Error, AttributeError) as e:
                 filepath = 'COULD NOT DOWNLOAD FILE'
-
+                s3_file_path = 'COULD NOT DOWNLOAD FILE'
+                print(e)
             record['description'] = photo_description
             record['img_url'] = img_url
             record['img_path'] = filepath  # local path
-            record['s3_path'] = ''
+            record['s3_path'] = s3_file_path
             record['source'] = group_name
             record['date'] = parsed_date
             periodic_data.append(record)
@@ -93,6 +97,78 @@ def get_data_from_group_board(group_name: str):
             json.dump(periodic_data, f, ensure_ascii=False)
 
         context.tracing.stop(path="trace.zip")
+
+        # with open(f'../test_data/group_photos/cars_{album}', 'a+') as f:
+        #     photo_description = photo_details_page.get_photo_description()
+        #     img_url = photo_details_page.get_image_url()
+        #     filename = add_timestamp('picture')
+        #     try:
+        #         filepath = ApiConnector(context.request).download_image(img_url,
+        #                                                                 f'../test_data/group_photos/pictures/{filename}')
+        #         filepath = filepath.absolute()
+        #     except (Error, AttributeError):
+        #         filepath = 'COULD NOT DOWNLOAD FILE'
+        #     f.write(
+        #         f'''DESCRIPTION: {photo_description} \nIMG_URL: {img_url} \nIMG_PATH: {filepath}  \n\n-------------\n\n''')
+        # i += 1
+        # print(f'{album} ({number_of_pic}) - {i}')
+        # photo_details_page.wait_for_page_to_load(timeout=3000)
+        # i += 1
+        # if i == 10:
+        #     break
+        # page.wait_for_timeout(5000)
+    # context.close()
+
+
+# with (sync_playwright() as playwright):
+#     browser = playwright.chromium.launch(headless=True)
+#     context = browser.new_context()
+#     page = context.new_page()
+#
+#     go to facebook group page, and close all popups/modals
+# fb_page = FacebookGroupPage(page, group_name)
+# photos_by_page = fb_page.navigate_to_photos_by_page()
+#
+# photos_by_page.close_allow_all_files_modal()
+# photos_by_page.close_login_info_modal()
+#
+# photos_by_page.wait_for_page_to_load(3000)
+# photo_details_page = photos_by_page.open_first_photo_details()
+# photo_details_page.wait_for_page_to_load()
+#
+# i = 0
+# photo_details_page.remove_login_bottom_div()
+# while True:
+#     try:
+#         if photo_details_page.show_more_button_is_visible():
+#             photo_details_page.click_first_show_more_button()
+#             photo_details_page.wait_for_page_to_load(300)
+#     except (TimeoutError, Error, IndexError):
+#         pass
+#     with open(f'../test_data/periodic_update/update', 'a+') as f:
+#         try:
+#             photo_description = photo_details_page.get_photo_description()
+#         except TimeoutError:
+#             photo_description = 'NO_PHOTO_DESCRIPTION'
+#         try:
+#             img_url = photo_details_page.get_image_url()
+#         except:
+#             img_url = 'NO_URL'
+#         f.write(f'''DESCRIPTION: {photo_description} \nIMG_URL: {img_url} \n\n-------------\n\n''')
+#     i += 1
+#     print(f'{album} ({number_of_pic}) - {i}')
+#
+#
+#
+#
+#
+# try:
+#     photo_details_page.wait_for_page_to_load()
+#     photo_details_page.click_next_picture()
+# except TimeoutError:
+#     break
+# page.wait_for_timeout(5000)
+# context.close()
 
 
 get_data_from_group_board('nieoznakowaneradiowozy')
