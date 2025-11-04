@@ -1,5 +1,4 @@
 import json
-import time
 
 import boto3
 import google.generativeai as genai
@@ -48,7 +47,9 @@ def lambda_handler(event, context):
                         old_license_plates: previous registration numbers (list),
                         road_numbers: Polish numbers of roads on which the vehicle moves (list),
                         }}
-                        If data is missing, leave blank. Return only the json structure and nothing else.
+                        - Registration number may be in description or in hashtags (usually it is in both places)
+                        - Ignore new line characters (\\n).
+                        - If data is missing, leave blank. Return only the json structure and nothing else.
                         """
         response = model.generate_content(prompt)
         print(response.text)
@@ -63,7 +64,7 @@ def lambda_handler(event, context):
 
         temp_file_name = temp_file.name
 
-        upload_to_s3(temp_file_name, 'cops-detector-pictures', 'data.json')
+        # upload_to_s3(temp_file_name, 'cops-detector-pictures', 'data.json')
 
     return {'statusCode': 200,
             'body': response.text}
