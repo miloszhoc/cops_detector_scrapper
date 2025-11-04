@@ -32,7 +32,7 @@ async def main():
             except KeyError:
                 pass
     with open(f'test_data/joined_data_s3.json', 'a+') as destination_file:
-        json.dump(source_json_data, destination_file)
+        json.dump(source_json_data, destination_file, ensure_ascii=False)
 
 
 asyncio.run(main())
