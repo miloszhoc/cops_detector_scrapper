@@ -5,6 +5,7 @@ import time
 from urllib.parse import unquote
 import pathlib
 import boto3
+from datetime import datetime
 
 TEST_DATA_PATH = pathlib.Path('test_data/group_photos/')
 
@@ -76,3 +77,26 @@ def invoke_lamda(function_name: str, payload: dict, invocation_type: str = 'Requ
     response = client.invoke(FunctionName=function_name, InvocationType=invocation_type, Payload=payload)
     return response['ResponseMetadata']
 
+
+def parse_polish_datetime(text) -> str:
+    # Example input: "niedziela, 19 października 2025 o 21:50"
+    months = {
+        "stycznia": 1,
+        "lutego": 2,
+        "marca": 3,
+        "kwietnia": 4,
+        "maja": 5,
+        "czerwca": 6,
+        "lipca": 7,
+        "sierpnia": 8,
+        "września": 9,
+        "października": 10,
+        "listopada": 11,
+        "grudnia": 12
+    }
+    parts = text.split()
+    day = int(parts[1])
+    month = months[parts[2]]
+    year = int(parts[3])
+    hour, minute = map(int, parts[5].split(":"))
+    return datetime(year, month, day, hour, minute).strftime('%Y-%m-%d %H:%M')
