@@ -1,8 +1,12 @@
+import sys
+
+sys.path.append('/Users/milosz/PycharmProjects/cops_detector', )
+# sys.path.append('/Users/milosz/PycharmProjects/cops_detector/scrappers/pom',)
+
 from playwright.sync_api import sync_playwright
 from playwright._impl._errors import TimeoutError, Error
-
-from pom.api_calls import ApiConnector
-from pom.pages import NieoznakowanyPage, FacebookGroupPage
+from scrappers.pom.api_calls import ApiConnector
+from scrappers.pom.pages import NieoznakowanyPage, FacebookGroupPage
 from utils.voivodeships import Voivodeship
 from utils.websites_to_scap import Website
 from utils.utils import extract_data_from_urls, add_timestamp
@@ -11,11 +15,10 @@ from utils.utils import extract_data_from_urls, add_timestamp
 def get_data_from_nieoznakowany_pl():  # todo finish - save to db
     base_url = Website.NIEOZNAKOWANY.base_url
     with sync_playwright() as playwright:
-        browser = playwright.chromium.launch()
+        browser = playwright.chromium.launch(headless=False)
         context = browser.new_context()
         page = context.new_page()
         current_page = NieoznakowanyPage(page)
-
         urls = []
         for data in Voivodeship:
             print(f'checking {data.readable_name}')
@@ -25,7 +28,7 @@ def get_data_from_nieoznakowany_pl():  # todo finish - save to db
         browser.close()
 
 
-def get_data_from_facebook_group_albums(group_name: str, excluded_albums: list):
+def get_data_from_facebook_group_albums(group_name: str, excluded_albums: list, included_albums: list = ()):
     '''
     1. Open facebook group
     2. Go to group albums page.
@@ -41,13 +44,15 @@ def get_data_from_facebook_group_albums(group_name: str, excluded_albums: list):
 
         If no more pictures in album, navigate to group albums page and open next album.
 
-    :param group_name:
-    :param excluded_albums:
+    :param group_name: facebook group name
+    :param excluded_albums: name of the albums to be excluded
+    :param included_albums: albums to be included (if empty, script will get list of albums by itself)
     :return:
     '''
     with (sync_playwright() as playwright):
-        browser = playwright.chromium.launch(headless=True)
+        browser = playwright.chromium.launch(headless=False)
         context = browser.new_context()
+        # context.tracing.start(screenshots=True, snapshots=True, sources=True)
         page = context.new_page()
 
         # go to facebook group page, navigate to albums and close all popups/modals
@@ -61,8 +66,12 @@ def get_data_from_facebook_group_albums(group_name: str, excluded_albums: list):
         fb_albums_page.wait_for_page_to_load(2000)
 
         # get all album names that are in facebook group
-        albums_to_scrap = fb_albums_page.get_album_names()
+        if included_albums:
+            albums_to_scrap = included_albums
+        else:
+            albums_to_scrap = fb_albums_page.get_album_names()
 
+        print(albums_to_scrap)
         # exclude albums
         for album in reversed(albums_to_scrap):
             if album[0] in excluded_albums:
@@ -92,7 +101,6 @@ def get_data_from_facebook_group_albums(group_name: str, excluded_albums: list):
                 with open(f'../test_data/group_photos/cars_{album}', 'a+') as f:
                     photo_description = photo_details_page.get_photo_description()
                     img_url = photo_details_page.get_image_url()
-                    print('img_url', img_url)
                     filename = add_timestamp('picture')
                     try:
                         filepath = ApiConnector(context.request).download_image(img_url,
@@ -107,13 +115,27 @@ def get_data_from_facebook_group_albums(group_name: str, excluded_albums: list):
                 try:
                     photo_details_page.wait_for_page_to_load()
                     photo_details_page.click_next_picture()
+                    photo_details_page.remove_login_overlay()
                 except TimeoutError:
                     fb_page.navigate_to_albums()
                     fb_page.close_login_info_modal()
                     break
-                page.wait_for_timeout(5000)
+            page.wait_for_timeout(5000)
+        # context.tracing.stop(path="trace.zip")
         context.close()
 
 
-# get_data_from_nieoznakowany_pl()
-get_data_from_facebook_group_albums('nieoznakowaneradiowozy', [])
+get_data_from_facebook_group_albums('nieoznakowaneradiowozy',
+                                    ['Like it ;)', 'Zdjęcia w tle', 'Zdjęcia profilowe'],
+                                    included_albums=[('Woj. Podlaskie', '117'),
+                                                     ('Woj. Małopolskie', '124'),
+                                                     ('Woj. Mazowieckie', '196'),])
+
+# ('Woj. Śląskie', '114'),
+# ('Woj.Świętokrzyskie', '140'),
+# ('Woj. Wielkopolskie', '84'),
+# ('Woj. Podkarpackie', '109'),
+
+# ('Woj. Podlaskie', '117'),
+# ('Woj. Małopolskie', '124'),
+# ('Woj. Mazowieckie', '196'),
