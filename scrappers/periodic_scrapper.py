@@ -3,12 +3,12 @@ import sys
 
 from playwright.sync_api import sync_playwright, Error
 
-from env_config.config import BUCKET_NAME, TEST_DATA_ROOT_FOLDER
+from env_config.config import BUCKET_NAME, TEST_DATA_ROOT_FOLDER, PROJECT_ROOT_FOLDER
 from lambda_function.lambda_function import upload_file_to_s3
 from scrappers.pom.api_calls import ApiConnector
 from utils.utils import parse_polish_datetime, add_timestamp, get_today_date
 
-sys.path.append('/Users/milosz/PycharmProjects/cops_detector', )
+sys.path.append(PROJECT_ROOT_FOLDER, )
 
 from scrappers.pom.pages import FacebookGroupPage
 

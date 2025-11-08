@@ -1,7 +1,8 @@
 import sys
 
-sys.path.append('/Users/milosz/PycharmProjects/cops_detector', )
-# sys.path.append('/Users/milosz/PycharmProjects/cops_detector/scrappers/pom',)
+from env_config.config import PROJECT_ROOT_FOLDER
+
+sys.path.append(PROJECT_ROOT_FOLDER, )
 
 from playwright.sync_api import sync_playwright
 from playwright._impl._errors import TimeoutError, Error
