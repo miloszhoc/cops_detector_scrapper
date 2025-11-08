@@ -5,7 +5,7 @@ import time
 from urllib.parse import unquote
 import pathlib
 import boto3
-from datetime import datetime
+from datetime import datetime, date
 
 TEST_DATA_PATH = pathlib.Path('test_data/group_photos/')
 
@@ -70,6 +70,10 @@ async def upload_file_to_s3(semaphore, bucket_name, local_file_path):
         s3.Bucket(bucket_name).upload_file(local_file_path, remote_file_path)
         return bucket_name, remote_file_path
 
+
+def get_today_date():
+    today = date.today()
+    return today.strftime("%Y-%m-%d")
 
 def invoke_lamda(function_name: str, payload: dict, invocation_type: str = 'RequestResponse') -> str:
     payload = json.dumps(payload)
