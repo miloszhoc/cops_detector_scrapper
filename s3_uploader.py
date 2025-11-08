@@ -4,7 +4,7 @@ from utils.utils import upload_file_to_s3
 
 """upload images to s3 bucket and add s3 file path"""
 
-BUCKET_NAME = 'cops-detector-pictures'
+
 
 with open(f'test_data/joined_data.json', 'r') as source_file:
     source_json_data = json.load(source_file)
