@@ -16,13 +16,21 @@ def get_file_content_from_s3(filename):
     return json_content
 
 
-def upload_to_s3(file_name, bucket, object_name=None):
+def upload_file_to_s3(bucket_name, local_file_path, remote_file_path=None):
+    if remote_file_path is None:
+        remote_file_path = f"pictures/{local_file_path.split('/')[-1]}"
+    s3 = boto3.resource('s3')
+    s3.Bucket(bucket_name).upload_file(local_file_path, remote_file_path)
+    return f'{bucket_name}/{remote_file_path}'
+
+
+def upload_to_s3(file_path, bucket, object_name=None):
     s3_client = boto3.client('s3')
     try:
-        s3_client.upload_file(file_name, bucket, object_name)
-        print(f"File '{file_name}' uploaded to '{bucket}/{object_name}' successfully.")
+        s3_client.upload_file(file_path, bucket, object_name)
+        print(f"File '{file_path}' uploaded to '{bucket}/{object_name}' successfully.")
     except Exception as e:
-        print(f"Failed to upload {file_name} to S3: {str(e)}")
+        print(f"Failed to upload {file_path} to S3: {str(e)}")
 
 
 def lambda_handler(event, context):
