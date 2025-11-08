@@ -197,8 +197,9 @@ class FacebookPhotoDetailsPage(FacebookBasePage):
 
     def get_date_of_the_picture(self):
         date = None
-        self.page.locator('//*[@role="complementary"]//span/*/a[@role="link" and contains(@href, "/posts/")]').element_handles()[0].hover()
-        # self.page.get_by_role("complementary").locator('//span/*/a[@role="link" and contains(@href, "/posts/")]').element_handles()[0].hover()
+        try:
+            self.page.locator('//*[@role="complementary"]//span/*/a[@role="link" and contains(@href, "/posts/")]').element_handles()[0].hover()
+        except IndexError:
+            self.page.locator('//*[@role="complementary"]//span/*/a[@role="link" and contains(@href, "/photo/")]').element_handles()[0].hover()
         date = self.page.locator('//div[@role="tooltip"]/span').inner_text()
-        # aria = self.page.get_by_role("complementary").locator('//span/span/a[@role="link" and contains(@href, "/posts/")]/parent::span/parent::span').get_attribute('aria-describedby')
         return date
