@@ -4,9 +4,8 @@ import sys
 from playwright.sync_api import sync_playwright, Error
 
 from env_config.config import BUCKET_NAME, TEST_DATA_ROOT_FOLDER, PROJECT_ROOT_FOLDER
-from lambda_function.lambda_function import upload_file_to_s3
 from scrappers.pom.api_calls import ApiConnector
-from utils.utils import parse_polish_datetime, add_timestamp, get_today_date
+from utils.utils import parse_polish_datetime, add_timestamp, get_today_date, upload_file_to_s3
 
 sys.path.append(PROJECT_ROOT_FOLDER, )
 
@@ -31,7 +30,7 @@ def get_data_from_group_board(group_name: str):
     :return:
     """
     periodic_data = []
-    test_data_folder = f'{TEST_DATA_ROOT_FOLDER}/periodic_update'
+    test_data_folder = f'{TEST_DATA_ROOT_FOLDER}/periodic_update/{group_name}'
     with (sync_playwright() as playwright):
         browser = playwright.chromium.launch(headless=False)
         context = browser.new_context(viewport={"height": 720, "width": 1280})
@@ -91,15 +90,14 @@ def get_data_from_group_board(group_name: str):
 
             photo_details_page.click_next_picture()
             current_picture_iter += 1
-
-        today_date = get_today_date()
-        with open(f'{test_data_folder}/periodic.json', 'w+') as f:
-            json.dump(periodic_data, f, ensure_ascii=False)
-            remote_file_path = f'{today_date}/results.json'
-            upload_file_to_s3(BUCKET_NAME, f.name, remote_file_path)
-
         context.tracing.stop(path="trace.zip")
         context.close()
+
+    today_date = get_today_date()
+    with open(f'{test_data_folder}/periodic.json', 'w+') as f:
+        json.dump(periodic_data, f, ensure_ascii=False)
+        remote_file_path = f'{today_date}/{group_name}/periodic.json'
+    upload_file_to_s3(BUCKET_NAME, f.name, remote_file_path)
 
 
 if __name__ == '__main__':

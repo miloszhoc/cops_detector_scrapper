@@ -75,6 +75,14 @@ def get_today_date():
     today = date.today()
     return today.strftime("%Y-%m-%d")
 
+def upload_to_s3(file_name, bucket, object_name=None):
+    s3_client = boto3.client('s3')
+    try:
+        s3_client.upload_file(file_name, bucket, object_name)
+        print(f"File '{file_name}' uploaded to '{bucket}/{object_name}' successfully.")
+    except Exception as e:
+        print(f"Failed to upload {file_name} to S3: {str(e)}")
+
 def invoke_lamda(function_name: str, payload: dict, invocation_type: str = 'RequestResponse') -> str:
     payload = json.dumps(payload)
     client = boto3.client('lambda')
