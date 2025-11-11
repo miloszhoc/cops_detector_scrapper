@@ -5,7 +5,7 @@ from playwright.sync_api import sync_playwright, Error
 
 from env_config.config import BUCKET_NAME, TEST_DATA_ROOT_FOLDER, PROJECT_ROOT_FOLDER
 from scrappers.pom.api_calls import ApiConnector
-from utils.utils import parse_polish_datetime, add_timestamp, get_today_date, upload_file_to_s3
+from utils.utils import parse_polish_datetime, add_timestamp, get_today_date, upload_to_s3
 
 sys.path.append(PROJECT_ROOT_FOLDER, )
 
@@ -71,7 +71,7 @@ def get_data_from_group_board(group_name: str):
                 filepath = ApiConnector(context.request).download_image(img_url,
                                                                         f'{test_data_folder}/pictures/{filename}')
                 filepath = str(filepath.absolute())
-                s3_file_path = upload_file_to_s3(BUCKET_NAME, filepath)
+                s3_file_path = upload_to_s3(filepath, BUCKET_NAME, f'pictures/{filename}')
             except (Error, AttributeError) as e:
                 filepath = 'COULD NOT DOWNLOAD FILE'
                 s3_file_path = 'COULD NOT DOWNLOAD FILE'
@@ -97,7 +97,7 @@ def get_data_from_group_board(group_name: str):
     with open(f'{test_data_folder}/periodic.json', 'w+') as f:
         json.dump(periodic_data, f, ensure_ascii=False)
         remote_file_path = f'{today_date}/{group_name}/periodic.json'
-    upload_file_to_s3(BUCKET_NAME, f.name, remote_file_path)
+    upload_to_s3(f.name, BUCKET_NAME, remote_file_path)
 
 
 if __name__ == '__main__':

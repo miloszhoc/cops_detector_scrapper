@@ -1,22 +1,16 @@
 import json
-import random
 import re
 import time
 from urllib.parse import unquote
-import pathlib
 import boto3
 from datetime import datetime, date
 
-TEST_DATA_PATH = pathlib.Path('test_data/group_photos/')
-
-
-class FunctionError(Exception):
-    pass
+from env_config.config import BUCKET_NAME
 
 
 def get_file_content_from_s3(filename):
     s3 = boto3.client('s3')
-    stream = s3.get_object(Bucket='cops-detector-pictures', Key=filename)['Body'].iter_lines()
+    stream = s3.get_object(Bucket=BUCKET_NAME, Key=filename)['Body'].iter_lines()
     content = []
     for i in stream:
         content.append(i.decode('utf-8'))
@@ -63,25 +57,20 @@ def split_file_into_chunks(file_path, no_of_elements_in_chunk):
     return chunks
 
 
-async def upload_file_to_s3(semaphore, bucket_name, local_file_path):
-    async with semaphore:
-        remote_file_path = f"pictures/{local_file_path.split('/')[-1]}"
-        s3 = boto3.resource('s3')
-        s3.Bucket(bucket_name).upload_file(local_file_path, remote_file_path)
-        return bucket_name, remote_file_path
-
-
 def get_today_date():
     today = date.today()
     return today.strftime("%Y-%m-%d")
+
 
 def upload_to_s3(file_name, bucket, object_name=None):
     s3_client = boto3.client('s3')
     try:
         s3_client.upload_file(file_name, bucket, object_name)
         print(f"File '{file_name}' uploaded to '{bucket}/{object_name}' successfully.")
+        return f'{bucket}/{object_name}'
     except Exception as e:
         print(f"Failed to upload {file_name} to S3: {str(e)}")
+
 
 def invoke_lamda(function_name: str, payload: dict, invocation_type: str = 'RequestResponse') -> str:
     payload = json.dumps(payload)
