@@ -71,7 +71,7 @@ def get_data_from_group_board(group_name: str):
                 filepath = ApiConnector(context.request).download_image(img_url,
                                                                         f'{test_data_folder}/pictures/{filename}')
                 filepath = str(filepath.absolute())
-                s3_file_path = upload_to_s3(filepath, BUCKET_NAME, f'pictures/{filename}')
+                s3_file_path = upload_to_s3(filepath, BUCKET_NAME, f'pictures/{group_name}/{filename}')
             except (Error, AttributeError) as e:
                 filepath = 'COULD NOT DOWNLOAD FILE'
                 s3_file_path = 'COULD NOT DOWNLOAD FILE'
