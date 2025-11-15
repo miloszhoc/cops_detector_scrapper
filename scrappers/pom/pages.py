@@ -181,6 +181,8 @@ class FacebookPhotoDetailsPage(FacebookBasePage):
     def get_image_url(self):
         try:
             img_url = self.page.locator(self.IMAGE_LOCATOR).element_handles()[0].get_attribute('src')
+        except IndexError:
+            img_url = self.page.locator(self.ALT_IMAGE_LOCATOR).element_handles()[0].get_attribute('src')
         except Exception as e:
             img_url = 'NO_URL'
             print(e)
