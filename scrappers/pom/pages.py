@@ -181,8 +181,9 @@ class FacebookPhotoDetailsPage(FacebookBasePage):
     def get_image_url(self):
         try:
             img_url = self.page.locator(self.IMAGE_LOCATOR).element_handles()[0].get_attribute('src')
-        except:
+        except Exception as e:
             img_url = 'NO_URL'
+            print(e)
         return img_url
 
     def click_next_picture(self, timeout: float = 3000):
