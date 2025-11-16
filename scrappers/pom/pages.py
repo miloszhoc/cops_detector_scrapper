@@ -159,9 +159,6 @@ class FacebookPhotoDetailsPage(FacebookBasePage):
         return self.page.get_by_role("complementary").get_by_text("Wyświetl Więcej", exact=True)
 
     def click_first_show_more_button(self):
-        # show_more_buttons = self.page.get_by_role("complementary").get_by_role("button", name="Wyświetl Więcej").element_handles()
-        # show_more_buttons = self.page.get_by_role("complementary").get_by_text("Wyświetl Więcej").element_handles()
-        # show_more_buttons = self.page.get_by_role("button").and_(self.page.get_by_text("Wyświetl Więcej", exact=True))
         show_more_buttons = self.page.get_by_text("Wyświetl więcej", exact=True).element_handles()
         for button in show_more_buttons:
             button.click()
