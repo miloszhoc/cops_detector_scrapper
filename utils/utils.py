@@ -6,6 +6,7 @@ import boto3
 from datetime import datetime, date
 
 from env_config.config import BUCKET_NAME
+from utils.logs import LOGGER
 
 
 def get_file_content_from_s3(filename):
@@ -66,10 +67,10 @@ def upload_to_s3(file_name, bucket, object_name=None):
     s3_client = boto3.client('s3')
     try:
         s3_client.upload_file(file_name, bucket, object_name)
-        print(f"File '{file_name}' uploaded to '{bucket}/{object_name}' successfully.")
+        LOGGER.info(f"File '{file_name}' uploaded to '{bucket}/{object_name}' successfully.")
         return f'{bucket}/{object_name}'
     except Exception as e:
-        print(f"Failed to upload {file_name} to S3: {str(e)}")
+        LOGGER.error(f"Failed to upload {file_name} to S3: {str(e)}")
 
 
 def invoke_lamda(function_name: str, payload: dict, invocation_type: str = 'RequestResponse') -> str:
