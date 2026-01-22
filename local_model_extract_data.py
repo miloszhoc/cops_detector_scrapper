@@ -7,8 +7,7 @@ copy('test_data/joined_data.json', 'test_data/joined_data_final.json')
 
 # model = GPT4All("Meta-Llama-3-8B-Instruct.Q4_0.gguf", device='cuda')  # downloads / loads a 4.66GB LLM
 model = GPT4All("Nous-Hermes-2-Mistral-7B-DPO.Q4_0.gguf", device='cuda')
-#
-# przerobic na generator
+
 with (open('test_data/joined_data.json', 'r',
            encoding='UTF-8') as f_source, open('test_data/joined_data_final.json', 'r',
                                                encoding='UTF-8') as f_dest):
@@ -38,4 +37,4 @@ with (open('test_data/joined_data.json', 'r',
             # destination['extracted_data'] = json.dumps(resp)
 end_time = int(time.time())
 
-print(f'execution time {end_time - start_time}sek.')
+print(f'execution time {end_time - start_time}sec.')
