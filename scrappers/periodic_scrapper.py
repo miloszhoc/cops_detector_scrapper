@@ -119,8 +119,3 @@ def get_data_from_group_board(group_name: str):
         LOGGER.info('Processing completed...')
     upload_to_s3(f.name, BUCKET_NAME, remote_file_path)
     LOGGER.info('Uploaded picture records data to S3.')
-
-
-if __name__ == '__main__':
-    # get_data_from_group_board('nieoznakowaneradiowozy')
-    get_data_from_group_board('radiowozynieoznakowane')
