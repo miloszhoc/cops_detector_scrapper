@@ -13,22 +13,6 @@ from utils.websites_to_scap import Website
 from utils.utils import extract_data_from_urls, add_timestamp
 
 
-def get_data_from_nieoznakowany_pl():  # todo finish - save to db
-    base_url = Website.NIEOZNAKOWANY.base_url
-    with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=False)
-        context = browser.new_context()
-        page = context.new_page()
-        current_page = NieoznakowanyPage(page)
-        urls = []
-        for data in Voivodeship:
-            print(f'checking {data.readable_name}')
-            current_page.navigate(f'{base_url}/public/index.php?name=list&country={data.readable_name}&back=1')
-            page.on('request', lambda request: urls.append(request.url) if 'change.php?' in request.url else '')
-        car_data = extract_data_from_urls(urls)
-        browser.close()
-
-
 def get_data_from_facebook_group_albums(group_name: str, excluded_albums: list, included_albums: list = ()):
     '''
     1. Open facebook group
@@ -125,18 +109,3 @@ def get_data_from_facebook_group_albums(group_name: str, excluded_albums: list, 
         # context.tracing.stop(path="trace.zip")
         context.close()
 
-
-get_data_from_facebook_group_albums('nieoznakowaneradiowozy',
-                                    ['Like it ;)', 'Zdjęcia w tle', 'Zdjęcia profilowe'],
-                                    included_albums=[('Woj. Podlaskie', '117'),
-                                                     ('Woj. Małopolskie', '124'),
-                                                     ('Woj. Mazowieckie', '196'),])
-
-# ('Woj. Śląskie', '114'),
-# ('Woj.Świętokrzyskie', '140'),
-# ('Woj. Wielkopolskie', '84'),
-# ('Woj. Podkarpackie', '109'),
-
-# ('Woj. Podlaskie', '117'),
-# ('Woj. Małopolskie', '124'),
-# ('Woj. Mazowieckie', '196'),
