@@ -48,5 +48,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: build-output
-          path: ./vehicle_ingestion_*.log
+          path: | 
+            ./vehicle_ingestion_*.log
+            ./test_data/periodic_update/*/last_added.txt
           retention-days: 30
