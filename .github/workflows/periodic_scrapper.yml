@@ -1,0 +1,52 @@
+name: Run processor
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        description: 'periodic or one_time'
+        required: true
+        default: 'periodic'
+      group_name:
+        description: 'Name of the FB group, one or more (comma-separated values)'
+        required: true
+        default: 'nieoznakowaneradiowozy'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Set up Python version
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - uses: aws-actions/configure-aws-credentials@v5.1.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Run script
+        env:
+          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python main.py --type "${{ inputs.type }}" --groups "${{ inputs.groups }}"
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: build-output
+          path: ./vehicle_ingestion_*.log
+          retention-days: 30
