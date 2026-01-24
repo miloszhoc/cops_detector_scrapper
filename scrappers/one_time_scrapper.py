@@ -7,10 +7,8 @@ sys.path.append(PROJECT_ROOT_FOLDER, )
 from playwright.sync_api import sync_playwright
 from playwright._impl._errors import TimeoutError, Error
 from scrappers.pom.api_calls import ApiConnector
-from scrappers.pom.pages import NieoznakowanyPage, FacebookGroupPage
-from utils.voivodeships import Voivodeship
-from utils.websites_to_scap import Website
-from utils.utils import extract_data_from_urls, add_timestamp
+from scrappers.pom.pages import FacebookGroupPage
+from utils.utils import add_timestamp
 
 
 def get_data_from_facebook_group_albums(group_name: str, excluded_albums: list, included_albums: list = ()):

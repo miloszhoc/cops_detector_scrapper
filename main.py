@@ -31,12 +31,19 @@ def main():
 
     if _type == "periodic":
         for group in groups:
+            LOGGER.info('Downloading data from group {}'.format(group))
             get_data_from_group_board(group)
+            LOGGER.info('Done')
     elif _type == "one_time":
+        LOGGER.info('One-time processing started')
         excluded_albums = args.excluded_albums.split(',') if args.excluded_albums else []
         included_albums = args.included_albums.split(',') if args.included_albums else []
+        LOGGER.info('Excluded albums {}'.format(excluded_albums))
+        LOGGER.info('Included albums {}'.format(groups))
         for group in groups:
+            LOGGER.info('Downloading data from group {}'.format(group))
             get_data_from_facebook_group_albums(group, excluded_albums, included_albums)
+            LOGGER.info('Done')
 
 if __name__ == '__main__':
     main()
