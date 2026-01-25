@@ -110,7 +110,7 @@ def get_data_from_group_board(group_name: str):
                     f.write(parsed_date)
                     LOGGER.info(f'Updated last added picture date: {parsed_date}')
                 upload_to_s3(last_added_local_path, BUCKET_NAME, f'processing_dates/{group_name}/last_added.txt')
-                LOGGER.info(f'Uploaded last added picture date to S3 ({BUCKET_NAME}): {parsed_date}')
+                LOGGER.info(f'Uploaded last added picture date to S3: {parsed_date}')
 
             with open(f'{test_data_folder}/periodic.json', 'w+') as f:
                 json.dump(periodic_data, f, ensure_ascii=False)
