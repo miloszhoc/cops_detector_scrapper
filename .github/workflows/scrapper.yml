@@ -49,6 +49,7 @@ jobs:
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v6
+        if: always()
         with:
           name: build-output
           path: | 
