@@ -3,7 +3,7 @@ import sys
 
 from playwright.sync_api import sync_playwright, Error
 
-from env_config.config import BUCKET_NAME, TEST_DATA_ROOT_FOLDER, PROJECT_ROOT_FOLDER
+from env_config.config import BUCKET_NAME, TEST_DATA_ROOT_FOLDER, PROJECT_ROOT_FOLDER, COOKIES_PROMPT
 from scrappers.pom.api_calls import ApiConnector
 from utils.logs import LOGGER
 from utils.utils import parse_polish_datetime, add_timestamp, get_today_date, upload_to_s3, get_file_content_from_s3
@@ -53,7 +53,8 @@ def get_data_from_group_board(group_name: str):
             LOGGER.info("Last added picture date: {}".format(last_added))
 
             photos_page.wait_for_page_to_load(2000)
-            photos_page.close_allow_all_files_modal()
+            if COOKIES_PROMPT:
+                photos_page.close_allow_all_files_modal()
             photos_page.remove_login_overlay()
             LOGGER.info('Started processing...')
             photo_details_page = photos_page.open_first_photo_details()
@@ -119,6 +120,8 @@ def get_data_from_group_board(group_name: str):
                 current_picture_iter += 1
                 LOGGER.info(f'Moved to the next picture...')
         except Exception:
+            pass
+        finally:
             context.tracing.stop(path="trace.zip")
             context.close()
             exit(1)
