@@ -38,6 +38,9 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
 
+      - name: Install chromium browser
+        run: playwright install --with-deps chromium
+
       - name: Run script
         env:
           S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
