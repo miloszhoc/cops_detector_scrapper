@@ -1,6 +1,19 @@
+import json
 import re
+import time
 from urllib.parse import unquote
+import boto3
+from datetime import datetime, date
 
+from env_config.config import BUCKET_NAME
+from utils.logs import LOGGER
+
+
+def get_file_content_from_s3(object_key):
+    s3 = boto3.client('s3')
+    stream = s3.get_object(Bucket=BUCKET_NAME, Key=object_key)['Body']
+    content = stream.read().decode('utf-8')
+    return content
 
 def extract_data_from_urls(urls):
     car_data = {}
@@ -21,3 +34,67 @@ def extract_data_from_urls(urls):
                                  'color': color,
                                  'city': country}
     return car_data
+
+
+def add_timestamp(input_str, ext='jpg'):
+    return f'{input_str}_{int(time.time())}.{ext}'
+
+
+def split_file_into_chunks(file_path, no_of_elements_in_chunk):
+    with open(file_path, 'r') as f:
+        full_list = json.load(f)
+        file_path = f.name.split('.')[0]
+    chunks = []
+    for item in range(0, len(full_list), no_of_elements_in_chunk):
+        chunks.append(full_list[item:item + no_of_elements_in_chunk])
+
+    for i, chunk in enumerate(chunks):
+        with open(f'{file_path}_{i}.json', 'w+') as f:
+            json.dump(chunk, f, ensure_ascii=False)
+    return chunks
+
+
+def get_today_date():
+    today = date.today()
+    return today.strftime("%Y-%m-%d")
+
+
+def upload_to_s3(file_name, bucket, object_name=None):
+    s3_client = boto3.client('s3')
+    try:
+        s3_client.upload_file(file_name, bucket, object_name)
+        LOGGER.info(f"File '{file_name}' uploaded to '{bucket}/{object_name}' successfully.")
+        return f'{bucket}/{object_name}'
+    except Exception as e:
+        LOGGER.error(f"Failed to upload {file_name} to S3: {str(e)}")
+
+
+def invoke_lamda(function_name: str, payload: dict, invocation_type: str = 'RequestResponse') -> str:
+    payload = json.dumps(payload)
+    client = boto3.client('lambda')
+    response = client.invoke(FunctionName=function_name, InvocationType=invocation_type, Payload=payload)
+    return response['ResponseMetadata']
+
+
+def parse_polish_datetime(text) -> str:
+    # Example input: "niedziela, 19 października 2025 o 21:50"
+    months = {
+        "stycznia": 1,
+        "lutego": 2,
+        "marca": 3,
+        "kwietnia": 4,
+        "maja": 5,
+        "czerwca": 6,
+        "lipca": 7,
+        "sierpnia": 8,
+        "września": 9,
+        "października": 10,
+        "listopada": 11,
+        "grudnia": 12
+    }
+    parts = text.split()
+    day = int(parts[1])
+    month = months[parts[2]]
+    year = int(parts[3])
+    hour, minute = map(int, parts[5].split(":"))
+    return datetime(year, month, day, hour, minute).strftime('%Y-%m-%d %H:%M')
