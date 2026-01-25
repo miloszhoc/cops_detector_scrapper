@@ -1,4 +1,4 @@
-name: Run processor
+name: Run scrapper
 on:
   workflow_dispatch:
     inputs:
