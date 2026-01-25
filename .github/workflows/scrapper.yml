@@ -54,5 +54,6 @@ jobs:
           name: build-output
           path: | 
             ./vehicle_ingestion_*.log
+            ./trace.zip
             ./test_data/periodic_update/*/last_added.txt
           retention-days: 30

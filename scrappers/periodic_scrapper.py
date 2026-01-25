@@ -41,7 +41,7 @@ def get_data_from_group_board(group_name: str):
         context = browser.new_context(viewport={"height": 720, "width": 1280},
                                       locale='pl-PL',
                                       timezone_id='Europe/Warsaw')
-        # context.tracing.start(screenshots=True, snapshots=True, sources=True)
+        context.tracing.start(screenshots=True, snapshots=True, sources=True)
         page = context.new_page()
 
         # go to facebook group page, navigate to albums and close all popups/modals
@@ -118,7 +118,7 @@ def get_data_from_group_board(group_name: str):
             photo_details_page.click_next_picture()
             current_picture_iter += 1
             LOGGER.info(f'Moved to the next picture...')
-        # context.tracing.stop(path="trace.zip")
+        context.tracing.stop(path="trace.zip")
         context.close()
         LOGGER.info('Processing completed...')
     upload_to_s3(f.name, BUCKET_NAME, remote_file_path)
