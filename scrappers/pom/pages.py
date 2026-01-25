@@ -86,7 +86,7 @@ class FacebookGroupPage(FacebookBasePage):
         return FacebookPhotoDetailsPage(self.page)
 
     def navigate_to_photos_page(self):
-        self.page.goto(f'{self.BASE_URL}/{self.group_name}/photos')
+        self.page.goto(f'{self.BASE_URL}/{self.group_name}/photos?locale=pl_PL')
         return FacebookPhotosPage(self.page)
 
 
