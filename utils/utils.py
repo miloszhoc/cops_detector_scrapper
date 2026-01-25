@@ -9,15 +9,11 @@ from env_config.config import BUCKET_NAME
 from utils.logs import LOGGER
 
 
-def get_file_content_from_s3(filename):
+def get_file_content_from_s3(object_key):
     s3 = boto3.client('s3')
-    stream = s3.get_object(Bucket=BUCKET_NAME, Key=filename)['Body'].iter_lines()
-    content = []
-    for i in stream:
-        content.append(i.decode('utf-8'))
-    json_content = json.loads(''.join(content))
-    return json_content
-
+    stream = s3.get_object(Bucket=BUCKET_NAME, Key=object_key)['Body']
+    content = stream.read().decode('utf-8')
+    return content
 
 def extract_data_from_urls(urls):
     car_data = {}

@@ -6,7 +6,7 @@ from playwright.sync_api import sync_playwright, Error
 from env_config.config import BUCKET_NAME, TEST_DATA_ROOT_FOLDER, PROJECT_ROOT_FOLDER
 from scrappers.pom.api_calls import ApiConnector
 from utils.logs import LOGGER
-from utils.utils import parse_polish_datetime, add_timestamp, get_today_date, upload_to_s3
+from utils.utils import parse_polish_datetime, add_timestamp, get_today_date, upload_to_s3, get_file_content_from_s3
 
 sys.path.append(PROJECT_ROOT_FOLDER, )
 
@@ -47,9 +47,8 @@ def get_data_from_group_board(group_name: str):
         photos_page = fb_page.navigate_to_photos_page()
         LOGGER.info(f'Navigated to photos page (group_name/photos)...')
 
-        with open(f'{test_data_folder}/last_added.txt', 'r') as f:
-            last_added = f.read()
-            LOGGER.info("Last added picture date: {}".format(last_added))
+        last_added = get_file_content_from_s3(f'processing_dates/{group_name}/last_added.txt')
+        LOGGER.info("Last added picture date: {}".format(last_added))
 
         photos_page.wait_for_page_to_load(2000)
         photos_page.close_allow_all_files_modal()
@@ -103,11 +102,14 @@ def get_data_from_group_board(group_name: str):
             LOGGER.info(f'Record has been added to the list: {record}')
 
             if current_picture_iter == 0:
-                with open(f'{test_data_folder}/last_added.txt', 'w+') as f:
+                last_added_local_path = f'{test_data_folder}/last_added.txt'
+                with open(last_added_local_path, 'w+') as f:
                     f.write(parsed_date)
                     LOGGER.info(f'Updated last added picture date: {parsed_date}')
+                upload_to_s3(last_added_local_path, BUCKET_NAME, f'processing_dates/{group_name}/last_added.txt')
+                LOGGER.info(f'Uploaded last added picture date to S3 ({BUCKET_NAME}): {parsed_date}')
 
-            with open(f'{test_data_folder}/periodic.json', 'a+') as f:
+            with open(f'{test_data_folder}/periodic.json', 'w+') as f:
                 json.dump(periodic_data, f, ensure_ascii=False)
                 remote_file_path = f'{today_date}/{group_name}/periodic.json'
 
