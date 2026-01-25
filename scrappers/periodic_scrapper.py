@@ -38,7 +38,9 @@ def get_data_from_group_board(group_name: str):
     with (sync_playwright() as playwright):
         LOGGER.info("Starting Playwright...")
         browser = playwright.chromium.launch(headless=True)
-        context = browser.new_context(viewport={"height": 720, "width": 1280})
+        context = browser.new_context(viewport={"height": 720, "width": 1280},
+                                      locale='pl-PL',
+                                      timezone_id='Europe/Warsaw')
         # context.tracing.start(screenshots=True, snapshots=True, sources=True)
         page = context.new_page()
 
