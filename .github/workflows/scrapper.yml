@@ -1,5 +1,8 @@
 name: Run scrapper
 on:
+  schedule:
+    - cron: '0 18 * * *'
+
   workflow_dispatch:
     inputs:
       type:
