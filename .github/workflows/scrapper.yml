@@ -19,10 +19,8 @@ permissions:
   contents: read
 
 jobs:
-
-  run-script:
+  run-scraper:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
@@ -60,3 +58,9 @@ jobs:
             ./trace.zip
             ./test_data/periodic_update/*/last_added.txt
           retention-days: 30
+
+  run-processor:
+    needs: run-scraper
+    uses: miloszhoc/cops_detector_processor/.github/workflows/main.yml@main
+    with:
+      custom_date: ""
