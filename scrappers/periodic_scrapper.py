@@ -122,5 +122,8 @@ def get_data_from_group_board(group_name: str):
         # context.tracing.stop(path="trace.zip")
         context.close()
         LOGGER.info('Processing completed...')
-    upload_to_s3(f.name, BUCKET_NAME, remote_file_path)
-    LOGGER.info('Uploaded picture records data to S3.')
+    if len(periodic_data) > 0:
+        upload_to_s3(f.name, BUCKET_NAME, remote_file_path)
+        LOGGER.info('Uploaded picture records data to S3.')
+    else:
+        LOGGER.info('Nothing to upload...')
