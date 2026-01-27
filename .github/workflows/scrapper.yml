@@ -48,7 +48,7 @@ jobs:
         env:
           S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: python main.py --type "${{ inputs.type }}" --groups "${{ inputs.group_name }}"
+        run: python main.py --type "${{ inputs.type || vars.DEFAULT_TYPE }}" --groups "${{ inputs.group_name || vars.DEFAULT_GROUP }}"
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v6
