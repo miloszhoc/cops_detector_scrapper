@@ -79,3 +79,4 @@ python -m scrappers.one_time_scrapper
 ## Disclaimer
 
 This project is for educational and informational purposes only.
+
