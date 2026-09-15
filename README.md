@@ -80,3 +80,4 @@ python -m scrappers.one_time_scrapper
 
 This project is for educational and informational purposes only.
 
+
